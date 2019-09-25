@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Read Fucking Code"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><title>6502内存映射 | 咚咚！咚咚！</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">6502内存映射</h1><a id="logo" href="/.">咚咚！咚咚！</a><p class="description">ruby.dongle</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">6502内存映射</h1><div class="post-meta"><a href="/2019/09/02/techdoc/NES Game/6502Processor/6502内存映射/#comments" class="comment-count"></a><p><span class="date">Sep 02, 2019</span><span><a href="/categories/技术文章/" class="category">技术文章</a></span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><p>参考<br><a href="http://wiki.nesdev.com/w/index.php/CPU_memory_map" target="_blank" rel="noopener">http://wiki.nesdev.com/w/index.php/CPU_memory_map</a><br><a href="http://wiki.nesdev.com/w/index.php/Sample_RAM_map" target="_blank" rel="noopener">http://wiki.nesdev.com/w/index.php/Sample_RAM_map</a></p>
+<h2 id="CPU内存空间映射"><a href="#CPU内存空间映射" class="headerlink" title="CPU内存空间映射"></a>CPU内存空间映射</h2><p><img src="/images/NesGame/CPU%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E5%B8%83%E5%B1%80.PNG" alt="img"><br>|Address range|    Size|    Device|<br>|—-|—-|—-|<br>|$0000-$07FF    |$0800    |2KB internal RAM<br>|$0800-$0FFF    |$0800    |Mirrors of $0000-$07FF<br>|$1000-$17FF    |$0800  |<br>|$1800-$1FFF    |$0800  |<br>|$2000-$2007    |$0008    |NES PPU registers<br>|$2008-$3FFF    |$1FF8    |Mirrors of $2000-2007 (repeats every 8 bytes)<br>|$4000-$4017    |$0018    |NES APU and I/O registers<br>|$4018-$401F    |$0008    |APU and I/O functionality that is normally disabled. See CPU Test Mode.<br>|$4020-$FFFF    |$BFE0    |Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)</p>
+<p>中断向量表：  </p>
+<ul>
+<li>$FFFA-$FFFB = NMI vector</li>
+<li>$FFFC-$FFFD = Reset vector</li>
+<li>$FFFE-$FFFF = IRQ/BRK vector</li>
+</ul>
+<h2 id="Ram分配"><a href="#Ram分配" class="headerlink" title="Ram分配"></a>Ram分配</h2><p>CPU连接一个2KB的RAM，CPU将这个2KB的RAM映射到内存空间$0000-$07FF.<br>ROM镜像的程序可以任意安排使用RAM空间。<br>下面是一个安排Ram布局的例子：<br><img src="/images/NesGame/Ram%E5%88%86%E9%85%8D%E5%AE%89%E6%8E%92.PNG" alt="img"></p>
+<table>
+<thead>
+<tr>
+<th>Addresses</th>
+<th>Size</th>
+<th>What can go there</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$0000-$000F</td>
+<td>16 bytes</td>
+<td>Local variables and function arguments</td>
+</tr>
+<tr>
+<td>$0010-$00FF</td>
+<td>240 bytes</td>
+<td>Global variables accessed most often, including certain pointer tables</td>
+</tr>
+<tr>
+<td>$0100-$019F</td>
+<td>160 bytes</td>
+<td>Data to be copied to nametable during next vertical blank (see The frame and NMIs)</td>
+</tr>
+<tr>
+<td>$01A0-$01FF</td>
+<td>96 bytes</td>
+<td>Stack</td>
+</tr>
+<tr>
+<td>$0200-$02FF</td>
+<td>256 bytes</td>
+<td>Data to be copied to OAM during next vertical blank</td>
+</tr>
+<tr>
+<td>$0300-$03FF</td>
+<td>256 bytes</td>
+<td>Variables used by sound player, and possibly other variables</td>
+</tr>
+<tr>
+<td>$0400-$07FF</td>
+<td>1024 bytes</td>
+<td>Arrays and less-often-accessed global variables</td>
+</tr>
+</tbody></table>
+</div><div class="post-copyright"><blockquote><p>原文作者: 董宇</p><p>原文链接: <a href="https://rubydongle.github.io/2019/09/02/techdoc/NES Game/6502Processor/6502内存映射/">https://rubydongle.github.io/2019/09/02/techdoc/NES Game/6502Processor/6502内存映射/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2019/09/02/techdoc/NES Game/6502Processor/6502寄存器/" class="pre">6502寄存器</a><a href="/2019/09/02/techdoc/NES Game/6502Processor/6502中断/" class="next">6502中断</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU内存空间映射"><span class="toc-text">CPU内存空间映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ram分配"><span class="toc-text">Ram分配</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/伪终端使用/">伪终端使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/18/安装WordPress/">安装WordPress</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/php安装/">php安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/mysql安装/">mysql安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/nginx安装/">nginx安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/服务器搭建/">服务器搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/15/LVM/">LVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/15/pythonNotebook环境/">pythonNotebook环境</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/15/pythonQt/">pythonQt</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/15/shadowsocks使用/">shadowsocks使用</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/使用方法/">使用方法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/技术文章/">技术文章</a><span class="category-list-count">31</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/javascript/" style="font-size: 15px;">javascript</a> <a href="/tags/服务器/" style="font-size: 15px;">服务器</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/ShadowSocks/" style="font-size: 15px;">ShadowSocks</a> <a href="/tags/Android/" style="font-size: 15px;">Android</a> <a href="/tags/Art/" style="font-size: 15px;">Art</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/内核/" style="font-size: 15px;">内核</a> <a href="/tags/内存/" style="font-size: 15px;">内存</a> <a href="/tags/Binder/" style="font-size: 15px;">Binder</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">董宇.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Read Fucking Code"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><title>NesExample代码分析 | 咚咚！咚咚！</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">NesExample代码分析</h1><a id="logo" href="/.">咚咚！咚咚！</a><p class="description">ruby.dongle</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">NesExample代码分析</h1><div class="post-meta"><a href="/2019/08/31/techdoc/NES Game/NesExample代码分析/#comments" class="comment-count"></a><p><span class="date">Aug 31, 2019</span><span><a href="/categories/技术文章/" class="category">技术文章</a></span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h2 id="1-代码使用"><a href="#1-代码使用" class="headerlink" title="1.代码使用"></a>1.代码使用</h2><p>代码位置存在于<br><a href="https://github.com/rubydongle/Nes-ca65-Example.git" target="_blank" rel="noopener">https://github.com/rubydongle/Nes-ca65-Example.git</a><br>内部写好了Makefile文件，按照<a href="http://wiki.nesdev.com/w/index.php/Installing_CC65" target="_blank" rel="noopener">安装CC65</a>中的提示下载好编译工具链后，使用make命令就可以直接构建了。<br>分析此代码的目的是为了学习ATT汇编的格式，以及 6502 processor汇编语言。<br>6502的指令集可以参考<a href="http://wiki.nesdev.com/w/index.php/6502_instructions" target="_blank" rel="noopener">6502_instructions</a><br>其中下面的目录不错 <a href="http://obelisk.me.uk/6502/reference.html" target="_blank" rel="noopener">http://obelisk.me.uk/6502/reference.html</a>  </p>
+<p><a href="http://nesdev.com/6502_cpu.txt" target="_blank" rel="noopener">http://nesdev.com/6502_cpu.txt</a></p>
+<p>6502的寄存器可以参考下面文章：<br><a href="http://wiki.nesdev.com/w/index.php/CPU_registers" target="_blank" rel="noopener">http://wiki.nesdev.com/w/index.php/CPU_registers</a><br><a href="http://obelisk.me.uk/6502/registers.html" target="_blank" rel="noopener">http://obelisk.me.uk/6502/registers.html</a></p>
+<p>6502的内存寻址方式可以参考下面文章：<br><a href="http://obelisk.me.uk/6502/addressing.html" target="_blank" rel="noopener">http://obelisk.me.uk/6502/addressing.html</a></p>
+<p>数字格式<br>$十六进制表示 例如$40对应二进制%0100,0000<br>%二进制表示 例如%10001000  </p>
+<h2 id="2-初始化"><a href="#2-初始化" class="headerlink" title="2.初始化"></a>2.初始化</h2><p>初始化的代码块在reset中  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">reset:</span><br><span class="line">	sei       ; mask interrupts                    1....</span><br><span class="line">	lda #0    ;                                    2....</span><br><span class="line">	sta $2000 ; disable NMI                        3....</span><br><span class="line">	sta $2001 ; disable rendering</span><br><span class="line">	sta $4015 ; disable APU sound</span><br><span class="line">	sta $4010 ; disable DMC IRQ</span><br><span class="line">	lda #$40</span><br><span class="line">	sta $4017 ; disable APU IRQ</span><br><span class="line">	cld       ; disable decimal mode</span><br><span class="line">	ldx #$FF</span><br><span class="line">	txs       ; initialize stack</span><br><span class="line">	; wait for first vblank</span><br><span class="line">	bit $2002</span><br><span class="line">	:</span><br><span class="line">		bit $2002</span><br><span class="line">		bpl :-</span><br><span class="line">	; clear all RAM to 0</span><br><span class="line">	lda #0</span><br><span class="line">	ldx #0</span><br><span class="line">	:</span><br><span class="line">		sta $0000, X</span><br><span class="line">		sta $0100, X</span><br><span class="line">		sta $0200, X</span><br><span class="line">		sta $0300, X</span><br><span class="line">		sta $0400, X</span><br><span class="line">		sta $0500, X</span><br><span class="line">		sta $0600, X</span><br><span class="line">		sta $0700, X</span><br><span class="line">		inx</span><br><span class="line">		bne :-</span><br><span class="line">	; place all sprites offscreen at Y=255</span><br><span class="line">	lda #255</span><br><span class="line">	ldx #0</span><br><span class="line">	:</span><br><span class="line">		sta oam, X</span><br><span class="line">		inx</span><br><span class="line">		inx</span><br><span class="line">		inx</span><br><span class="line">		inx</span><br><span class="line">		bne :-</span><br><span class="line">	; wait for second vblank</span><br><span class="line">	:</span><br><span class="line">		bit $2002</span><br><span class="line">		bpl :-</span><br><span class="line">	; NES is initialized, ready to begin!</span><br><span class="line">	; enable the NMI for graphical updates, and jump to our main program</span><br><span class="line">	lda #%10001000</span><br><span class="line">	sta $2000</span><br><span class="line">	jmp main</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>1.首先通过sei指令禁用了中断<br>  sei指令和cli指令是相对应的，前者用来禁止中断，后者用来使能中断。<br>  使用sei指令后状态寄存器中的I(Interrupt Disable)标志位被设置为了1。<br>  状态寄存器是一个8位的寄存器，其中7位被使用用来标记状态，分别是C(Carry Flag)、Z(Zero Flag)、I(Interrupt Disable)、D(Decimal Mode Flag)、B(Brak Command)、V(Overflow Flag)、N(Negative Flag)。<br>  关于I标记为详细参考<a href="http://obelisk.me.uk/6502/registers.html#I" target="_blank" rel="noopener">http://obelisk.me.uk/6502/registers.html#I</a></p>
+</li>
+<li><p>2.将寄存器a中内容置为0<br>  上面我们使用了状态寄存器中的I标志位，第二步我们就使用了寄存器a。<br>  寄存器a是Accumulator累加寄存器，它和状态寄存器一样也是一个8位的寄存器，它在使用中和状态寄存器的C、Z、V、N等一起完成工作。<br>  lda指令将一个字节8位的内容加载到寄存器A中，当加载内容是0时会设置状态寄存器中的ZFlag，当加载的内容是负时会设置状态寄存器中的NFlag(这个是根据A的bit 7是否被设置来判定的)。<br>  lda可以支持下面类型的寻址模式：  </p>
+<ul>
+<li><p>Immediate<br>  立即寻址方式:程序中直接指定一个8位的常量赋值到寄存器a中，它的格式是一个#后面跟着一个数字。例如：</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LDA #10         ;Load 10 ($0A) into the accumulator</span><br><span class="line">LDX #LO LABEL   ;Load the LSB of a 16 bit address into X</span><br><span class="line">LDY #HI LABEL   ;Load the MSB of a 16 bit address into Y</span><br></pre></td></tr></table></figure>
+
+<p>  这一步我们的代码通过lda #0指令将寄存器a中的内容全部设置为0。</p>
+</li>
+<li><p>Zero Page</p>
+</li>
+<li><p>Zero Page,X</p>
+</li>
+<li><p>Absolute</p>
+</li>
+<li><p>Absolute,X</p>
+</li>
+<li><p>Absolute,Y</p>
+</li>
+<li><p>(Indirect,X)</p>
+</li>
+<li><p>(Indirect,Y)</p>
+</li>
+</ul>
+</li>
+<li><p>3.将寄存器a中的内容写入内存<br>  和lda指令对应的是sta，它的作用是将寄存器a的内容存入相应的内存地址中，sta的使用不会对状态寄存器中的内容有所影响。<br>  lda可以支持下面类型的寻址模式：</p>
+<ul>
+<li><p>Zero Page</p>
+</li>
+<li><p>Zero Page,X</p>
+</li>
+<li><p>Absolute<br>  绝对寻址方式：指令的操作数是一个16位的数指定的存储器中有效的目的地址,通过$和一个16位数指定，如$AD $F6 $31 $31F6。下面的指令将地址为$31F6的值载入累加器A:   </p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LDA $31F6       ;将地址为$31F6的值载入累加器, 即 A = [$31F6]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Absolute,X</p>
+</li>
+<li><p>Absolute,Y</p>
+</li>
+<li><p>(Indirect,X)</p>
+</li>
+<li><p>(Indirect),Y<br>我们的example代码中通过绝对地址操作内存的如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sta $2000 ; disable NMI</span><br><span class="line">sta $2001 ; disable rendering</span><br><span class="line">sta $4015 ; disable APU sound</span><br><span class="line">sta $4010 ; disable DMC IRQ</span><br><span class="line">lda #$40</span><br><span class="line">sta $4017 ; disable APU IRQ</span><br></pre></td></tr></table></figure>
+
+<p>其操作了内存地址$2000和$4000区域，这两个区域分别映射到PPU和APU的寄存器上的。<br>关于APU参考<a href="http://wiki.nesdev.com/w/index.php/APU" target="_blank" rel="noopener">http://wiki.nesdev.com/w/index.php/APU</a><br>关于PPU参考<a href="http://wiki.nesdev.com/w/index.php/PPU" target="_blank" rel="noopener">http://wiki.nesdev.com/w/index.php/PPU</a>和(<a href="http://wiki.nesdev.com/w/index.php/PPU_registers)[http://wiki.nesdev.com/w/index.php/PPU_registers]" target="_blank" rel="noopener">http://wiki.nesdev.com/w/index.php/PPU_registers)[http://wiki.nesdev.com/w/index.php/PPU_registers]</a><br>APU的内存映射关系如下：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Registers</th>
+<th align="left">Channel</th>
+<th align="left">Units</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">$4000-$4003</td>
+<td align="left">Pulse 1</td>
+<td align="left">Timer, length counter, envelope, sweep</td>
+</tr>
+<tr>
+<td align="left">$4004-$4007</td>
+<td align="left">Pulse 2</td>
+<td align="left">Timer, length counter, envelope, sweep</td>
+</tr>
+<tr>
+<td align="left">$4008-$400B</td>
+<td align="left">Triangle</td>
+<td align="left">Timer, length counter, linear counter</td>
+</tr>
+<tr>
+<td align="left">$400C-$400F</td>
+<td align="left">Noise</td>
+<td align="left">Timer, length counter, envelope, linear feedback shift register</td>
+</tr>
+<tr>
+<td align="left">$4010-$4013</td>
+<td align="left">DMC</td>
+<td align="left">Timer, memory reader, sample buffer, output unit</td>
+</tr>
+<tr>
+<td align="left">$4015</td>
+<td align="left">All</td>
+<td align="left">Channel enable and length counter status</td>
+</tr>
+<tr>
+<td align="left">$4017</td>
+<td align="left">All</td>
+<td align="left">Frame counter</td>
+</tr>
+</tbody></table>
+<p>PPU的内存映射关系如下：  </p>
+<table>
+<thead>
+<tr>
+<th>Common Name</th>
+<th align="left">Address</th>
+<th align="left">Bits</th>
+<th align="left">Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PPUCTRL</td>
+<td align="left">$2000</td>
+<td align="left">VPHB SINN</td>
+<td align="left">NMI enable (V), PPU master/slave (P), sprite height (H), background tile select (B), sprite tile select (S), increment mode (I), nametable select (NN)</td>
+</tr>
+<tr>
+<td>PPUMASK</td>
+<td align="left">$2001</td>
+<td align="left">BGRs bMmG</td>
+<td align="left">color emphasis (BGR), sprite enable (s), background enable (b), sprite left column enable (M), background left column enable (m), greyscale (G)</td>
+</tr>
+<tr>
+<td>PPUSTATUS</td>
+<td align="left">$2002</td>
+<td align="left">VSO- —-</td>
+<td align="left">vblank (V), sprite 0 hit (S), sprite overflow (O); read resets write pair for $2005/$2006</td>
+</tr>
+<tr>
+<td>OAMADDR</td>
+<td align="left">$2003</td>
+<td align="left">aaaa aaaa</td>
+<td align="left">OAM read/write address</td>
+</tr>
+<tr>
+<td>OAMDATA</td>
+<td align="left">$2004</td>
+<td align="left">dddd dddd</td>
+<td align="left">OAM data read/write</td>
+</tr>
+<tr>
+<td>PPUSCROLL</td>
+<td align="left">$2005</td>
+<td align="left">xxxx xxxx</td>
+<td align="left">fine scroll position (two writes: X scroll, Y scroll)</td>
+</tr>
+<tr>
+<td>PPUADDR</td>
+<td align="left">$2006</td>
+<td align="left">aaaa aaaa</td>
+<td align="left">PPU read/write address (two writes: most significant byte, least significant byte)</td>
+</tr>
+<tr>
+<td>PPUDATA</td>
+<td align="left">$2007</td>
+<td align="left">dddd dddd</td>
+<td align="left">PPU data read/write</td>
+</tr>
+<tr>
+<td>OAMDMA</td>
+<td align="left">$4014</td>
+<td align="left">aaaa aaaa</td>
+<td align="left">OAM DMA high address</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<p>上面的将$2000和$2001内存地址的两个字节中写入0，相当于操作了PPU<br>PPU Controller($2000)寄存器每个位的功能如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">7  bit  0</span><br><span class="line">---- ----</span><br><span class="line">VPHB SINN</span><br><span class="line">|||| ||||</span><br><span class="line">|||| ||++- Base nametable address</span><br><span class="line">|||| ||    (0 = $2000; 1 = $2400; 2 = $2800; 3 = $2C00)</span><br><span class="line">|||| |+--- VRAM address increment per CPU read/write of PPUDATA</span><br><span class="line">|||| |     (0: add 1, going across; 1: add 32, going down)</span><br><span class="line">|||| +---- Sprite pattern table address for 8x8 sprites</span><br><span class="line">||||       (0: $0000; 1: $1000; ignored in 8x16 mode)</span><br><span class="line">|||+------ Background pattern table address (0: $0000; 1: $1000)</span><br><span class="line">||+------- Sprite size (0: 8x8 pixels; 1: 8x16 pixels)</span><br><span class="line">|+-------- PPU master/slave select</span><br><span class="line">|          (0: read backdrop from EXT pins; 1: output color on EXT pins)</span><br><span class="line">+--------- Generate an NMI at the start of the</span><br><span class="line">         vertical blanking interval (0: off; 1: on)</span><br></pre></td></tr></table></figure>
+
+<p>PPU Mask($2001)寄存器中每个位的功能如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">7  bit  0</span><br><span class="line">---- ----</span><br><span class="line">BGRs bMmG</span><br><span class="line">|||| ||||</span><br><span class="line">|||| |||+- Greyscale (0: normal color, 1: produce a greyscale display)</span><br><span class="line">|||| ||+-- 1: Show background in leftmost 8 pixels of screen, 0: Hide</span><br><span class="line">|||| |+--- 1: Show sprites in leftmost 8 pixels of screen, 0: Hide</span><br><span class="line">|||| +---- 1: Show background</span><br><span class="line">|||+------ 1: Show sprites</span><br><span class="line">||+------- Emphasize red</span><br><span class="line">|+-------- Emphasize green</span><br><span class="line">+--------- Emphasize blue</span><br></pre></td></tr></table></figure>
+
+<p>观察后面的操作，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lda #$40</span><br><span class="line">sta $4017 ; disable APU IRQ</span><br></pre></td></tr></table></figure>
+
+<p>相当于把0100,0000写入了,内存位置$4017即APU的Frame Counter寄存器。可以参考<a href="http://wiki.nesdev.com/w/index.php/APU_Frame_Counter" target="_blank" rel="noopener">http://wiki.nesdev.com/w/index.php/APU_Frame_Counter</a>了解。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">7  bit  0</span><br><span class="line">---- ----</span><br><span class="line">MI-- ----</span><br><span class="line">|||| ||||</span><br><span class="line">|+-------- IRQ inhibit flag(I).</span><br><span class="line">|          If set, the frame interrupt flag is cleared, otherwise it is unaffected.</span><br><span class="line">+--------- Sequencer Mode(M,0=4-step, 1=5-step)</span><br></pre></td></tr></table></figure>
+
+<p>参考寄存器位flag的意义，我们知道把$40写入内存地址$4017相当于禁止了APU的IRQ。  </p>
+</li>
+</ul>
+<p>4.操作状态寄存器Decimal Mode Flag<br>  后续我们通cld指令将状态寄存器的Decimal Mode Flag设置为0，由于CPU刚启动时这个标志位是未知的，所以我们要重置下。<br>  While the decimal mode flag is set the processor will obey the rules of Binary Coded Decimal (BCD) arithmetic during addition and subtraction.<br>  The flag can be explicitly set using ‘Set Decimal Flag’ (SED) and cleared with ‘Clear Decimal Flag’ (CLD).<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">; disable decimal mode</span><br></pre></td></tr></table></figure></p>
+<p>5.初始化程序栈<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ldx #$FF</span><br><span class="line">txs       ; initialize stack</span><br></pre></td></tr></table></figure></p>
+<p>  初始化程序栈我们用到了两个寄存器，<a href>Index Register X</a>和<a href>Stack Pointer</a><br>  Stack Pointer存入当前栈指针，用于后续JSR，和RTS指令使用。<br>  首先我们将x寄存器中设置为$FF，这个是我们设置的程序栈栈顶的位置,然后通过txs将x寄存器中的内容存入Stack Pointer寄存器，后续我们通过JSR跳转子程序，就用这个栈。</p>
+<p>6.等待PPU准备好<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">; wait for first vblank</span><br><span class="line">bit $2002</span><br><span class="line">:</span><br><span class="line">	bit $2002</span><br><span class="line">  	bpl :-</span><br></pre></td></tr></table></figure></p>
+<p>  可以看到这个相当于是一个循环，读取$2002内存位置中数据的状态，PPU中这个寄存器的含义描述如下：<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">7  bit  0</span><br><span class="line">---- ----</span><br><span class="line">VSO. ....</span><br><span class="line">|||| ||||</span><br><span class="line">|||+-++++- Least significant bits previously written into a PPU register</span><br><span class="line">|||        (due to register not being updated for this address)</span><br><span class="line">||+------- Sprite overflow. The intent was for this flag to be set</span><br><span class="line">||         whenever more than eight sprites appear on a scanline, but a</span><br><span class="line">||         hardware bug causes the actual behavior to be more complicated</span><br><span class="line">||         and generate false positives as well as false negatives; see</span><br><span class="line">||         PPU sprite evaluation. This flag is set during sprite</span><br><span class="line">||         evaluation and cleared at dot 1 (the second dot) of the</span><br><span class="line">||         pre-render line.</span><br><span class="line">|+-------- Sprite 0 Hit.  Set when a nonzero pixel of sprite 0 overlaps</span><br><span class="line">|          a nonzero background pixel; cleared at dot 1 of the pre-render</span><br><span class="line">|          line.  Used for raster timing.</span><br><span class="line">+--------- Vertical blank has started (0: not in vblank; 1: in vblank).</span><br><span class="line">           Set at dot 1 of line 241 (the line *after* the post-render</span><br><span class="line">           line); cleared after reading $2002 and at dot 1 of the</span><br><span class="line">           pre-render line.</span><br></pre></td></tr></table></figure></p>
+<p>该寄存器的第7位标记vblank是否开始了，这个是PPU是否准备好接收数据的标志。  </p>
+<p>BIT(Bit Test)<br>Z=A&amp;M, N=M7,V=M6<br>bit指令用于检测指定内存地址位的情况，执行后会影响状态寄存器的下列标志位：  </p>
+<ul>
+<li>Z(Zero Flag): Set if the result if the AND is zero.</li>
+<li>V(Overflow Flag): Set to bit 6 of the memory value.</li>
+<li>N(Negative Flag): Set to bit 7 of the memory value.<br>当vertical blank开始时，$2002内存处的bit 7会被设置为1,执行BIT $(2002)后会引起状态寄存器的N标志位被设置为1。  </li>
+</ul>
+<p>后面通过bpl指令来检测状态寄存器的N标志来进行跳转。<br>BPL(Branch if Positive):<br>bpl指令的作用是当N标志位被清除，会将偏移量加到程序计数器寄存器(PC),触发跳转到新的位置。  </p>
+<p>当vblank没开始时N Flag是0会触发跳转<br>当vblank开始时N Flag是1不会触发跳转，程序继续执行下去。  </p>
+<p>所以上段代码相当于检查到vblank是否开始，没有开始跳转回去继续执行检测。当vblank开始时跳出循环，往下执行代码。  </p>
+<p>7.清空内存数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">; clear all RAM to 0</span><br><span class="line">lda #0</span><br><span class="line">ldx #0</span><br><span class="line">:</span><br><span class="line">	sta $0000, X</span><br><span class="line">	sta $0100, X</span><br><span class="line">	sta $0200, X</span><br><span class="line">	sta $0300, X</span><br><span class="line">	sta $0400, X</span><br><span class="line">	sta $0500, X</span><br><span class="line">	sta $0600, X</span><br><span class="line">	sta $0700, X</span><br><span class="line">	inx</span><br><span class="line">	bne :-</span><br></pre></td></tr></table></figure>
+
+<p>这里使用到了一个新的寻址方式Absolute,X<br>The address to be accessed by an instruction using X register indexed absolute addressing is computed by taking the 16 bit address from the instruction and added the contents of the X register. For example if X contains $92 then an STA $2000,X instruction will store the accumulator at $2092 (e.g. $2000 + $92).</p>
+<p>X寄存器是一个8 bit寄存器，可以存储$00到$FF，之后再+1就会溢出了。<br>inx指令的作用是将X寄存器中的数进行+1操作，当为0时会设置状态寄存器的Z Flag，当7 bit被设置时状态寄存器的N Flag会被设置。<br>%0000,0000-&gt;Zero Flag Seted.<br>%1000,0000-&gt;Negative Flag Seted.</p>
+<p>8.将所有sprites 的offscreen 设置为Y=255<br>oam是在段OAM申明的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.segment &quot;OAM&quot;</span><br><span class="line">oam: .res 256        ; sprite OAM data to be uploaded by DMA</span><br></pre></td></tr></table></figure>
+
+<p>进入链接配置example.cfg文件中我们可以看到其所在内存区域为$0200  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">MEMORY &#123;</span><br><span class="line">......</span><br><span class="line">    OAM:    start = $0200,  size = $0100, type = rw, file = &quot;&quot;;</span><br><span class="line">......</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SEGMENTS &#123;</span><br><span class="line">......</span><br><span class="line">    OAM:      load = OAM, type = bss, align = $100;</span><br><span class="line">......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对照内存布局的安排如下：<br>|$0200-$02FF    |256 bytes    |Data to be copied to OAM during next vertical blan</p>
+<p>9.进入循环等待vblank</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">:</span><br><span class="line">	bit $2002</span><br><span class="line">        bpl :-</span><br></pre></td></tr></table></figure>
+
+<p>10.启动跳转到main   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lda #%10001000</span><br><span class="line">sta $2000</span><br><span class="line">jmp main</span><br></pre></td></tr></table></figure>
+
+<p>$2000 是PPU Control寄存器的地址，这一步操作相当于把$10001000写入了。使能了NMI。  </p>
+<h2 id="3-执行main代码"><a href="#3-执行main代码" class="headerlink" title="3.执行main代码"></a>3.执行main代码</h2><p>main代码分成三部分初始化界面、循环、绘制  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">.segment &quot;CODE&quot;</span><br><span class="line">main:</span><br><span class="line">        ; setup</span><br><span class="line">        ldx #0</span><br><span class="line">        :</span><br><span class="line">                lda example_palette, X</span><br><span class="line">                sta palette, X</span><br><span class="line">                inx</span><br><span class="line">                cpx #32</span><br><span class="line">                bcc :-</span><br><span class="line">        jsr setup_background</span><br><span class="line">        ; center the cursor</span><br><span class="line">        lda #128</span><br><span class="line">        sta cursor_x</span><br><span class="line">        lda #120</span><br><span class="line">        sta cursor_y</span><br><span class="line">        ; show the screen</span><br><span class="line">        jsr draw_cursor</span><br><span class="line">        jsr ppu_update</span><br><span class="line">        ; main loop</span><br><span class="line">@loop:</span><br><span class="line">        ; read gamepad</span><br><span class="line">        jsr gamepad_poll</span><br><span class="line">......</span><br><span class="line">@draw:</span><br><span class="line">        ; draw everything and finish the frame</span><br><span class="line">        jsr draw_cursor</span><br><span class="line">        jsr ppu_update</span><br><span class="line">        ; keep doing this forever!</span><br><span class="line">        jmp @loop</span><br></pre></td></tr></table></figure>
+
+<p>1.初始化界面<br>初始化界面操作如下<br>a.赋值palette</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ldx #0</span><br><span class="line">:</span><br><span class="line">        lda example_palette, X</span><br><span class="line">        sta palette, X</span><br><span class="line">        inx</span><br><span class="line">        cpx #32</span><br><span class="line">        bcc :-</span><br></pre></td></tr></table></figure>
+
+<p>example_palette在代码的RODATA代码段。根据链接配置example.cfg，我们知道其在内存$8000处。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">MEMORY &#123;</span><br><span class="line">......</span><br><span class="line">    PRG:    start = $8000,  size = $8000, type = ro, file = %O, fill = yes, fillval = $00;</span><br><span class="line">......</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SEGMENTS &#123;</span><br><span class="line">......</span><br><span class="line">    RODATA:   load = PRG, type = ro;</span><br><span class="line">......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码中我们定义了RODATA内存区中的example_palette如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.segment &quot;RODATA&quot;</span><br><span class="line">example_palette:</span><br><span class="line">.byte $0F,$15,$26,$37 ; bg0 purple/pink</span><br><span class="line">.byte $0F,$09,$19,$29 ; bg1 green</span><br><span class="line">.byte $0F,$01,$11,$21 ; bg2 blue</span><br><span class="line">.byte $0F,$00,$10,$30 ; bg3 greyscale</span><br><span class="line">.byte $0F,$18,$28,$38 ; sp0 yellow</span><br><span class="line">.byte $0F,$14,$24,$34 ; sp1 purple</span><br><span class="line">.byte $0F,$1B,$2B,$3B ; sp2 teal</span><br><span class="line">.byte $0F,$12,$22,$32 ; sp3 marine</span><br></pre></td></tr></table></figure>
+
+<p>代码的指令操作相当于读取example_paltte中的内容，存储到palette中去了。<br>palette在代码中的定义如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.segment &quot;BSS&quot;</span><br><span class="line">nmt_update: .res 256 ; nametable update entry buffer for PPU update</span><br><span class="line">palette:    .res 32  ; palette buffer for PPU update</span><br></pre></td></tr></table></figure>
+
+<p>其存在于BSS段，参考链接配置文件example.cfg<br>其在$0300-$0800内。<br>MEMORY {<br>……<br>    RAM:    start = $0300,  size = $0500, type = rw, file = “”;<br>……<br>}</p>
+<p>SEGMENTS {<br>……<br>    BSS:      load = RAM, type = bss;<br>……<br>}<br>赋值好palette后，就通过jsr跳转到setup_background设置背景了。</p>
+<p>b.设置背景<br>设置背景的指令比较多，就不列出了。  </p>
+<p>设置完成后通过rts出栈，退出。<br>后面设置cursor坐标的x，y值。  </p>
+<p>c.将cursor坐标设置到中心。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">; center the cursor</span><br><span class="line">lda #128</span><br><span class="line">sta cursor_x</span><br><span class="line">lda #120</span><br><span class="line">sta cursor_y</span><br></pre></td></tr></table></figure>
+
+<p>我们的cursor_x和cursor_y变量存储在ZEROPAGE段中。<br>.segment “ZEROPAGE”<br>cursor_x: .res 1<br>cursor_y: .res 1<br>temp_x:   .res 1<br>temp_y:   .res 1<br>对应连接配置文件如下：<br>MEMORY {<br>    ZP:     start = $00,    size = $0100, type = rw, file = “”;<br>……<br>}</p>
+<p>SEGMENTS {<br>    ZEROPAGE: load = ZP,  type = zp;<br>……<br>}</p>
+<p>:qa<br>d.将上面设置的内容显示到屏幕上来。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">; show the screen</span><br><span class="line">jsr draw_cursor</span><br><span class="line">jsr ppu_update</span><br></pre></td></tr></table></figure>
+
+<p>draw_cursor的作用是把</p>
+<p>2.进入循环<br>循环中不停从输入读取输入。<br>根据不同的按键进行不同的操作start、u、d、l、r、select、B、A按键。  </p>
+</div><div class="post-copyright"><blockquote><p>原文作者: 董宇</p><p>原文链接: <a href="https://rubydongle.github.io/2019/08/31/techdoc/NES Game/NesExample代码分析/">https://rubydongle.github.io/2019/08/31/techdoc/NES Game/NesExample代码分析/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2019/09/02/techdoc/NES Game/6502Processor/6502中断/" class="pre">6502中断</a><a href="/2019/08/29/techdoc/MM/Linux内存初始化/" class="next">Linux内存初始化</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-代码使用"><span class="toc-text">1.代码使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-初始化"><span class="toc-text">2.初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-执行main代码"><span class="toc-text">3.执行main代码</span></a></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/伪终端使用/">伪终端使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/18/安装WordPress/">安装WordPress</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/php安装/">php安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/mysql安装/">mysql安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/nginx安装/">nginx安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/服务器搭建/">服务器搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/15/LVM/">LVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/15/pythonNotebook环境/">pythonNotebook环境</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/15/pythonQt/">pythonQt</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/15/shadowsocks使用/">shadowsocks使用</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/使用方法/">使用方法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/技术文章/">技术文章</a><span class="category-list-count">31</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/javascript/" style="font-size: 15px;">javascript</a> <a href="/tags/服务器/" style="font-size: 15px;">服务器</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/ShadowSocks/" style="font-size: 15px;">ShadowSocks</a> <a href="/tags/Android/" style="font-size: 15px;">Android</a> <a href="/tags/Art/" style="font-size: 15px;">Art</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/内核/" style="font-size: 15px;">内核</a> <a href="/tags/内存/" style="font-size: 15px;">内存</a> <a href="/tags/Binder/" style="font-size: 15px;">Binder</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">董宇.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
