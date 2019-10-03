@@ -1,0 +1,269 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="Read Fucking Code"><link rel="stylesheet" type="text/css" href="//fonts.loli.net/css?family=Source+Code+Pro"><link rel="stylesheet" type="text/css" href="/css/style.css?v=2.0.4"><link rel="stylesheet" type="text/css" href="/css/highlight.css?v=2.0.4"><link rel="Shortcut Icon" href="/favicon.ico"><link rel="bookmark" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><title>mini2440开发板 | 咚咚！咚咚！</title></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">mini2440开发板</h1><a id="logo" href="/.">咚咚！咚咚！</a><p class="description">ruby.dongle</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div><div id="search-form"><div id="result-mask" class="hide"></div><label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label><div id="result-wrap" class="hide"><div id="search-result"></div></div><div class="hide"><template id="search-tpl"><div class="item"><a href="/{path}" title="{title}"><div class="title">{title}</div><div class="time">{date}</div><div class="tags">{tags}</div></a></div></template></div></div></div><div id="layout" class="layout-g"><div class="layout-l"><div class="content_container"><div class="post"><h1 class="post-title">mini2440开发板</h1><div class="post-meta"><a href="/2019/10/03/mini2440开发板/#comments" class="comment-count"></a><p><span class="date">Oct 03, 2019</span><span><a href="/categories/技术文章/" class="category">技术文章</a></span><span><i id="busuanzi_container_page_pv"><i id="busuanzi_value_page_pv"></i><i>点击</i></i></span></p></div><div class="post-content"><h1 id="Linux下USB烧机工具"><a href="#Linux下USB烧机工具" class="headerlink" title="Linux下USB烧机工具"></a>Linux下USB烧机工具</h1><p>MiniTools<br>参考：<a href="http://www.arm9home.net/read.php?tid-24600.html" target="_blank" rel="noopener">http://www.arm9home.net/read.php?tid-24600.html</a></p>
+<h1 id="编译工具链"><a href="#编译工具链" class="headerlink" title="编译工具链"></a>编译工具链</h1><h1 id="NandFlash"><a href="#NandFlash" class="headerlink" title="NandFlash"></a>NandFlash</h1><h1 id="NorFlash"><a href="#NorFlash" class="headerlink" title="NorFlash"></a>NorFlash</h1><h1 id="SuperBoot"><a href="#SuperBoot" class="headerlink" title="SuperBoot"></a>SuperBoot</h1><p>下载到NandFlash</p>
+<h1 id="supervivi"><a href="#supervivi" class="headerlink" title="supervivi"></a>supervivi</h1><h1 id="vboot"><a href="#vboot" class="headerlink" title="vboot"></a>vboot</h1><h1 id="bootloader-vivi"><a href="#bootloader-vivi" class="headerlink" title="bootloader vivi"></a>bootloader vivi</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/rubydongle/bootloader-vivi.git</span><br></pre></td></tr></table></figure>
+
+<p>vivi 的编译依赖持编译器为2.95.3</p>
+<p>LINUX_INCLUDE_DIR    = /usr/local/arm/2.95.3/include/<br>CROSS_COMPILE = /usr/local/arm/2.95.3/bin/arm-linux-<br>ARM_GCC_LIBS    = /usr/local/arm/2.95.3/lib/gcc-lib/arm-linux/2.95.3</p>
+<p>下载编译工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/rubydongle/arm-linux-gcc-2.95.3.git 2.95.3</span><br><span class="line"></span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/arm/</span><br><span class="line"></span><br><span class="line">mv 2.95.3 /usr/<span class="built_in">local</span>/arm/</span><br></pre></td></tr></table></figure>
+
+<h1 id="arm启动"><a href="#arm启动" class="headerlink" title="arm启动"></a>arm启动</h1><p>当arm开发板启动时首先从nandflash的0处加载程序执行</p>
+<h1 id="时钟"><a href="#时钟" class="headerlink" title="时钟"></a>时钟</h1><h1 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h1><h1 id="串口"><a href="#串口" class="headerlink" title="串口"></a>串口</h1><p>参考:<a href="https://github.com/rubydongle/RubyBlog/blob/master/source/files/%E5%BC%80%E5%8F%91%E6%9D%BF/S3C2440.pdf" target="_blank" rel="noopener">S3C2440的开发文档11章UART</a></p>
+<h2 id="UART-0-的寄存器"><a href="#UART-0-的寄存器" class="headerlink" title="UART 0 的寄存器"></a>UART 0 的寄存器</h2><p>1.UART线路控制寄存器(UART Line Control Register)<br>寄存器的地址在0x50000000</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ULCON0</td>
+<td>0x50000000</td>
+<td>R/W</td>
+<td>UART channel 0 line control register</td>
+<td>0x00</td>
+</tr>
+</tbody></table>
+<p>每个位的作用如下：</p>
+<table>
+<thead>
+<tr>
+<th>ULCONn</th>
+<th>Bit</th>
+<th>Description</th>
+<th>Initial State</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reserved</td>
+<td>[7]</td>
+<td>-</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Infrared Mode</td>
+<td>[6]</td>
+<td>是否使用Infrared mode. <br> 0 = Normal mode operation <br> 1 = Infrared Tx/Rx mode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Parity Mode</td>
+<td>[5:3]</td>
+<td>Specify the type of parity generation and checking during UART transmit and receive operation.<br>0xx = No parity<br>100 = Odd parity<br>101 = Even parity<br>110 = Parity forced/checked as 1<br>111 = Parity forced/checked as 0</td>
+<td>000</td>
+</tr>
+<tr>
+<td>Number of Stop Bit</td>
+<td>[2]</td>
+<td>Specify how many stop bits are to be used for end-of-frame signal.<br>0 = One stop bit per frame<br>1 = Two stop bit per frame</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Word Length</td>
+<td>[1:0]</td>
+<td>Indicate the number of data bits to be transmitted or received per frame.<br>00 = 5-bits  01 = 6-bits<br>10 = 7-bits  11 = 8-bits</td>
+<td>00</td>
+</tr>
+</tbody></table>
+<p>2.UART控制寄存器(UART Control Register)<br>寄存器的地址在0x50000004</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UCON0</td>
+<td>0x50000004</td>
+<td>R/W</td>
+<td>UART channel 0 control register</td>
+<td>0x00</td>
+</tr>
+</tbody></table>
+<p>3.UART FIFO控制寄存器(UART FIFO Control Register)<br>寄存器地址在0x50000008</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UFCON0</td>
+<td>0x50000008</td>
+<td>R/W</td>
+<td>UART channel 0 FIFO control register</td>
+<td>0x00</td>
+</tr>
+</tbody></table>
+<p>4.UART调制解调器控制寄存器(UART Modem Control Register)<br>寄存器地址在0x5000000C</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UMCON0</td>
+<td>0x5000000C</td>
+<td>R/W</td>
+<td>UART channel 0 Modem control register</td>
+<td>0x00</td>
+</tr>
+</tbody></table>
+<p>5.UART 发送/接收状态寄存器(UART TX/RX Status Register)<br>寄存器地址在0x50000010</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UTRSTAT0</td>
+<td>0x50000010</td>
+<td>R</td>
+<td>UART channel 0 Tx/Rx status register</td>
+<td>0x00</td>
+</tr>
+</tbody></table>
+<p>6.UART 错误状态寄存器(UART Error Status Register)<br>寄存器的地址在0x50000014</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UERSTAT0</td>
+<td>0x50000014</td>
+<td>R</td>
+<td>UART channel 0 Rx error status register</td>
+<td>0x0</td>
+</tr>
+</tbody></table>
+<p>7.UART FIFO 状态寄存器(UART FIFO Status Register)<br>寄存器的地址在0x50000018</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UFSTAT0</td>
+<td>0x50000018</td>
+<td>R</td>
+<td>UART channel 0 Rx FIFO status register</td>
+<td>0x0</td>
+</tr>
+</tbody></table>
+<p>8.UART调制解调器状态寄存器(UART Modem Status Register)<br>寄存器地址在0x5000001C</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UFSTAT0</td>
+<td>0x5000001C</td>
+<td>R</td>
+<td>UART channel 0 Rx modem status register</td>
+<td>0x0</td>
+</tr>
+</tbody></table>
+<p>9.UART 发送缓冲寄存器(UART TRANSMIT BUFFER REGISTER (HOLDING REGISTER &amp; FIFO REGISTER))</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UTXH0</td>
+<td>0x50000020(L)<br>0x50000023(B)</td>
+<td>W<br>(by byte)</td>
+<td>UART channel 0 transmit buffer register</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p>10.UART接收缓冲区寄存器(UART RECEIVE BUFFER REGISTER (HOLDING REGISTER &amp; FIFO REGISTER))</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>URXH0</td>
+<td>0x50000024(L)<br>0x50000027(B)</td>
+<td>R<br>(by byte)</td>
+<td>UART channel 0 receive buffer register</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p>11.UART波特率分频因子寄存器(UART BAUD RATE DIVISOR REGISTER)</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>R/W</th>
+<th>Description</th>
+<th>Reset Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UBRDIV0</td>
+<td>0x50000028</td>
+<td>R/W</td>
+<td>Baud rate divisior register 0</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h3 id="下面开始使用uart-0"><a href="#下面开始使用uart-0" class="headerlink" title="下面开始使用uart 0"></a>下面开始使用uart 0</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UART_CTL_BASE           0x50000000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UART0_CTL_BASE          UART_CTL_BASE</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 0x50000000 UART 0 的线路控制寄存器</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> oULCON                  0x00    <span class="comment">/* R/W, UART line control register */</span></span></span><br><span class="line"><span class="comment">// 0x50000004 UART 0 的控制寄存器</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> oUCON                   0x04    <span class="comment">/* R/W, UART control register */</span></span></span><br><span class="line"><span class="comment">// 0x50000008 UART 0 FIFO控制寄存器</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> oUFCON                  0x08    <span class="comment">/* R/W, UART FIFO control register */</span></span></span><br><span class="line"><span class="comment">// 0x5000000c UART 0 调制解调器控制寄存器</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> oUMCON                  0x0C    <span class="comment">/* R/W, UART modem control register */</span></span></span><br><span class="line"><span class="comment">// 0x50000028 UART 0 波特率分频因子寄存器</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> oUBRDIV                 0x28    <span class="comment">/* R/W, Baud rate divisor register */</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UART_PCLK_400_148       50000000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UART_PCLK           UART_PCLK_400_148</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 波特率 115200</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UART_BAUD_RATE          115200</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义的变量SerBase存储UART0_CTL_BASE</span></span><br><span class="line">.align <span class="number">4</span></span><br><span class="line">SerBase:</span><br><span class="line">        .<span class="keyword">long</span> UART0_CTL_BASE</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化UART 0</span></span><br><span class="line">@ Initialize UART</span><br><span class="line">@</span><br><span class="line">@ r0 number of UART port</span><br><span class="line">InitUART:</span><br><span class="line">        ldr     r1, SerBase</span><br><span class="line">        mov     r2, #<span class="number">0x0</span>		@ r2 寄存器中的内容为<span class="number">0x0</span></span><br><span class="line">        str     r2, [r1, #oUFCON]	@ 初始化了FIFO控制寄存器</span><br><span class="line">        str     r2, [r1, #oUMCON]	@ 初始化了Modem控制寄存器</span><br><span class="line">        mov     r2, #<span class="number">0x3</span>		@ r2 寄存器中的内容为<span class="number">0x3</span>即<span class="number">00000011</span></span><br><span class="line">        str     r2, [r1, #oULCON]	@ 将r2寄存器中的内容存入UART的线路控制寄存器，指明Word Length为<span class="number">8</span>-bits</span><br><span class="line">        ldr     r2, =<span class="number">0x245</span>		@ r2 寄存器中的内容为<span class="number">0x245</span>,即<span class="number">0000</span>,<span class="number">0010</span>,<span class="number">0100</span>,<span class="number">0101</span></span><br><span class="line">        str     r2, [r1, #oUCON]	@ 将r2写于控制寄存器,bit <span class="number">9</span>-&gt;<span class="number">1</span>表示Level (Interrupt is requested <span class="keyword">while</span> Tx buffer is empty in Non-FIFO mode <span class="keyword">or</span> reaches Tx FIFO Trigger Level in FIFO mode.) bit <span class="number">6</span>-&gt;<span class="number">1</span>表示Generate receive error status interrupt. bit [<span class="number">3</span>:<span class="number">2</span>]-&gt;<span class="number">01</span>表示Interrupt request <span class="keyword">or</span> polling mode. bit [<span class="number">1</span>:<span class="number">0</span>]-&gt;<span class="number">01</span>表示Interrupt request <span class="keyword">or</span> polling mode</span><br><span class="line"></span><br><span class="line"><span class="comment">//#define UART_BAUD_RATE                115200</span></span><br><span class="line"><span class="comment">//#define UART_PCLK_400_148     50000000</span></span><br><span class="line"><span class="comment">//#define UART_PCLK           UART_PCLK_400_148</span></span><br><span class="line">#define UART_BRD ((UART_PCLK  / (UART_BAUD_RATE * <span class="number">16</span>)) - <span class="number">1</span>)</span><br><span class="line">        mov     r2, #UART_BRD		@ r2 寄存器写入波特率</span><br><span class="line">        str     r2, [r1, #oUBRDIV]	@ 设置波特率</span><br><span class="line"></span><br><span class="line">        mov     r3, #<span class="number">100</span></span><br><span class="line">        mov     r2, #<span class="number">0x0</span></span><br><span class="line"><span class="number">1</span>:      sub     r3, r3, #<span class="number">0x1</span></span><br><span class="line">        tst     r2, r3</span><br><span class="line">        bne     <span class="number">1b</span>  </span><br><span class="line"></span><br><span class="line">        mov     pc, lr</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 可以使用串口发送内容了</span></span><br><span class="line">#define __REGl(x)       (*(<span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *)(x))</span><br><span class="line">#define bUART(x, Nb)            __REGl(UART_CTL_BASE + (x)*<span class="number">0x4000</span> + (Nb))</span><br><span class="line"></span><br><span class="line">#define oUTRSTAT                <span class="number">0x10</span>    <span class="comment">/* R  , UART Tx/Rx status register */</span></span><br><span class="line">#define oUTXHL                  <span class="number">0x20</span>    <span class="comment">/*   W, UART transmit(little-end) buffer */</span></span><br><span class="line"></span><br><span class="line">#define UTRSTAT0                bUART(<span class="number">0</span>, oUTRSTAT)</span><br><span class="line">#define UTXH0                   bUARTb(<span class="number">0</span>, oUTXHL)</span><br><span class="line"></span><br><span class="line"><span class="comment">//=====================================================================</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> Uart_SendByte(<span class="keyword">int</span> data)</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">while</span> (!(UTRSTAT0 &amp; <span class="number">0x2</span>)) ;     <span class="comment">//Wait until THR is empty.</span></span><br><span class="line">        UTXH0 = data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//====================================================================</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Uart_SendString</span><span class="params">(<span class="keyword">char</span> *pt)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (*pt)</span><br><span class="line">                Uart_SendByte(*pt++);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="看门狗"><a href="#看门狗" class="headerlink" title="看门狗"></a>看门狗</h1><p>参考:<a href="https://github.com/rubydongle/RubyBlog/blob/master/source/files/%E5%BC%80%E5%8F%91%E6%9D%BF/S3C2440.pdf" target="_blank" rel="noopener">S3C2440的开发文档18章</a><br>The S3C2440A watchdog timer is used to resume the controller operation whenever it is disturbed by malfunctions<br>such as noise and system errors. It can be used as a normal 16-bit interval timer to request interrupt service. The<br>watchdog timer generates the reset signal for 128 PCLK cycles.</p>
+<p>watchdog定时器使用PCLK作为唯一的时钟源，</p>
+<h1 id="写NandFlash"><a href="#写NandFlash" class="headerlink" title="写NandFlash"></a>写NandFlash</h1><h3 id="dnw"><a href="#dnw" class="headerlink" title="dnw"></a>dnw</h3><p>1.驱动</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/usb.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/mutex.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SECBULK_MAJOR	102</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SECBULK_MINOR	0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DRIVER_NAME	<span class="meta-string">"secbulk"</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BULKOUT_BUFFER_SIZE	(4*1024)</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">secbulk_dev</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">usb_device</span> *<span class="title">udev</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">io_mutex</span>;</span></span><br><span class="line">	<span class="keyword">char</span>*	bulkout_buffer;</span><br><span class="line">	__u8	bulk_out_endpointAddr;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">usb_class_driver</span> <span class="title">secbulk_class</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">usb_device_id</span> <span class="title">secbulk_table</span>[]= &#123;</span></span><br><span class="line">	&#123; USB_DEVICE(<span class="number">0x5345</span>, <span class="number">0x1234</span>) &#125;, <span class="comment">/* FS2410 */</span></span><br><span class="line">	&#123; USB_DEVICE(<span class="number">0x04e8</span>, <span class="number">0x1234</span>) &#125;, <span class="comment">/* EZ6410 */</span></span><br><span class="line">	&#123; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">usb_driver</span> <span class="title">secbulk_driver</span>;</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">secbulk_disconnect</span><span class="params">(struct usb_interface *interface)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">secbulk_dev</span> *<span class="title">dev</span> = <span class="title">NULL</span>;</span></span><br><span class="line">	printk(KERN_INFO <span class="string">"secbulk:secbulk disconnected!\n"</span>);</span><br><span class="line">	dev = usb_get_intfdata(interface);</span><br><span class="line">	<span class="keyword">if</span>( <span class="literal">NULL</span> != dev )</span><br><span class="line">		kfree(dev);</span><br><span class="line">	usb_deregister_dev(interface, &amp;secbulk_class);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">secbulk_read</span><span class="params">(struct file *file, <span class="keyword">char</span> __user *buf, <span class="keyword">size_t</span> len,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">loff_t</span> *loff)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> -EPERM;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ssize_t <span class="title">secbulk_write</span><span class="params">(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *buf,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">size_t</span> len, <span class="keyword">loff_t</span> *loff)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">size_t</span> to_write;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">secbulk_dev</span> *<span class="title">dev</span> = <span class="title">file</span>-&gt;<span class="title">private_data</span>;</span></span><br><span class="line">	<span class="keyword">int</span> ret;</span><br><span class="line">	<span class="keyword">int</span> actual_length;</span><br><span class="line">	<span class="keyword">size_t</span> total_writed;</span><br><span class="line">	</span><br><span class="line">	total_writed = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span>(len &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		to_write = min(len, BULKOUT_BUFFER_SIZE);</span><br><span class="line">	</span><br><span class="line">		<span class="keyword">if</span>(copy_from_user(dev-&gt;bulkout_buffer, buf+total_writed,</span><br><span class="line">				to_write)) &#123;</span><br><span class="line">			printk(KERN_ERR <span class="string">"secbulk:copy_from_user failed!\n"</span>);</span><br><span class="line">			<span class="keyword">return</span> -EFAULT;	</span><br><span class="line">		&#125;	</span><br><span class="line"></span><br><span class="line">		ret = usb_bulk_msg(dev-&gt;udev,</span><br><span class="line">				usb_sndbulkpipe(dev-&gt;udev, dev-&gt;bulk_out_endpointAddr),</span><br><span class="line">				dev-&gt;bulkout_buffer,</span><br><span class="line">				to_write,</span><br><span class="line">				&amp;actual_length,</span><br><span class="line">				<span class="number">3</span>*HZ);</span><br><span class="line">		<span class="keyword">if</span>(ret || actual_length!=to_write) &#123;</span><br><span class="line">			printk(KERN_ERR <span class="string">"secbulk:usb_bulk_msg failed!\n"</span>);</span><br><span class="line">			<span class="keyword">return</span> -EFAULT;</span><br><span class="line">		&#125;	</span><br><span class="line">		len -= to_write;</span><br><span class="line">		total_writed += to_write;</span><br><span class="line">	&#125;	</span><br><span class="line">	<span class="keyword">return</span> total_writed;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">secbulk_open</span><span class="params">(struct inode *node, struct file *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">usb_interface</span> *<span class="title">interface</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">secbulk_dev</span> *<span class="title">dev</span>;</span></span><br><span class="line">	</span><br><span class="line">	interface = usb_find_interface(&amp;secbulk_driver, iminor(node));</span><br><span class="line">	<span class="keyword">if</span>(!interface)</span><br><span class="line">		<span class="keyword">return</span> -ENODEV;</span><br><span class="line"></span><br><span class="line">	dev = usb_get_intfdata(interface);</span><br><span class="line">	dev-&gt;bulkout_buffer = kzalloc(BULKOUT_BUFFER_SIZE, GFP_KERNEL);</span><br><span class="line">	<span class="keyword">if</span>(!(dev-&gt;bulkout_buffer))</span><br><span class="line">		<span class="keyword">return</span> -ENOMEM;</span><br><span class="line">	<span class="keyword">if</span>(!mutex_trylock(&amp;dev-&gt;io_mutex))</span><br><span class="line">		<span class="keyword">return</span> -EBUSY;</span><br><span class="line">	file-&gt;private_data = dev;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">secbulk_release</span><span class="params">(struct inode *node, struct file *file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">secbulk_dev</span> *<span class="title">dev</span>;</span></span><br><span class="line"></span><br><span class="line">	dev = (struct secbulk_dev*)(file-&gt;private_data);</span><br><span class="line">	kfree(dev-&gt;bulkout_buffer);</span><br><span class="line">	mutex_unlock(&amp;dev-&gt;io_mutex);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">secbulk_fops</span> = &#123;</span></span><br><span class="line">	.owner 	=	THIS_MODULE,</span><br><span class="line">	.read 	=	secbulk_read,</span><br><span class="line">	.write	=	secbulk_write,</span><br><span class="line">	.open   =	secbulk_open,</span><br><span class="line">	.release=	secbulk_release,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">usb_class_driver</span> <span class="title">secbulk_class</span> = &#123;</span></span><br><span class="line">	.name = 	<span class="string">"secbulk%d"</span>,</span><br><span class="line">	.fops =		&amp;secbulk_fops,</span><br><span class="line">	.minor_base=	<span class="number">100</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">secbulk_probe</span><span class="params">(struct usb_interface *interface, <span class="keyword">const</span> struct usb_device_id *id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ret;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">secbulk_dev</span> *<span class="title">dev</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">usb_host_interface</span> *<span class="title">iface_desc</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">usb_endpoint_descriptor</span> *<span class="title">endpoint</span>;</span></span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line"></span><br><span class="line">	printk(KERN_INFO <span class="string">"secbulk:secbulk probing...\n"</span>);</span><br><span class="line">	</span><br><span class="line">	dev = kzalloc(<span class="keyword">sizeof</span>(*dev), GFP_KERNEL);</span><br><span class="line">	<span class="keyword">if</span>(!dev) &#123;</span><br><span class="line">		ret = -ENOMEM;</span><br><span class="line">		<span class="keyword">goto</span> error;</span><br><span class="line">	&#125;	</span><br><span class="line"></span><br><span class="line">	iface_desc = interface-&gt;cur_altsetting;</span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>; i &lt; iface_desc-&gt;desc.bNumEndpoints; i++) &#123;</span><br><span class="line">		endpoint = &amp;(iface_desc-&gt;endpoint[i].desc);</span><br><span class="line">		<span class="keyword">if</span>(!dev-&gt;bulk_out_endpointAddr</span><br><span class="line">		&amp;&amp; usb_endpoint_is_bulk_out(endpoint)) &#123;</span><br><span class="line">			printk(KERN_INFO <span class="string">"secbulk:bulk out endpoint found!\n"</span>);</span><br><span class="line">			dev-&gt;bulk_out_endpointAddr = endpoint-&gt;bEndpointAddress;</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span>(!(dev-&gt;bulk_out_endpointAddr)) &#123;</span><br><span class="line">		ret = -EBUSY;</span><br><span class="line">		<span class="keyword">goto</span> error;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	ret = usb_register_dev(interface, &amp;secbulk_class);</span><br><span class="line">	<span class="keyword">if</span>(ret) &#123;</span><br><span class="line">		printk(KERN_ERR <span class="string">"secbulk: usb_register_dev failed!\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;		</span><br><span class="line">	dev-&gt;udev = usb_get_dev(interface_to_usbdev(interface));</span><br><span class="line"></span><br><span class="line">	usb_set_intfdata(interface, dev);</span><br><span class="line">	</span><br><span class="line">	mutex_init(&amp;dev-&gt;io_mutex);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">error:</span><br><span class="line">	<span class="keyword">if</span>(!dev)</span><br><span class="line">		kfree(dev);</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">usb_driver</span> <span class="title">secbulk_driver</span>= &#123;</span></span><br><span class="line">	.name=		<span class="string">"secbulk"</span>,</span><br><span class="line">	.probe=		secbulk_probe,</span><br><span class="line">	.disconnect=	secbulk_disconnect,</span><br><span class="line">	.id_table=	secbulk_table,</span><br><span class="line">	.supports_autosuspend=<span class="number">0</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">secbulk_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> result;</span><br><span class="line">	printk(KERN_INFO <span class="string">"secbulk:secbulk loaded\n"</span>);</span><br><span class="line">	result = usb_register(&amp;secbulk_driver);</span><br><span class="line">	<span class="keyword">if</span>(result) &#123;</span><br><span class="line">		printk(KERN_ERR <span class="string">"secbulk:usb_register failed: %d"</span>, result);</span><br><span class="line">		<span class="keyword">return</span> result;</span><br><span class="line">	&#125;		</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> __<span class="function"><span class="built_in">exit</span> <span class="title">secbulk_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	usb_deregister(&amp;secbulk_driver);</span><br><span class="line">	printk(KERN_INFO <span class="string">"secbulk:secbulk unloaded\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(secbulk_init);</span><br><span class="line">module_exit(secbulk_exit);</span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br></pre></td></tr></table></figure>
+
+</div><div class="post-copyright"><blockquote><p>原文作者: 董宇</p><p>原文链接: <a href="https://rubydongle.github.io/2019/10/03/mini2440开发板/">https://rubydongle.github.io/2019/10/03/mini2440开发板/</a></p><p>版权声明: 转载请注明出处(必须保留作者署名及链接)</p></blockquote></div><div class="tags"></div><div class="post-share"><div class="social-share"><span>分享到:</span></div></div><div class="post-nav"><a href="/2019/09/30/minicom/" class="next">minicom</a></div><div id="comments"></div></div></div></div><div class="layout-r"><div id="sidebar"><div class="search-pla"></div><div id="toc" class="widget"><div class="widget-title"><i class="fa fa-fei">文章目录</i></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux下USB烧机工具"><span class="toc-text">Linux下USB烧机工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#编译工具链"><span class="toc-text">编译工具链</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NandFlash"><span class="toc-text">NandFlash</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NorFlash"><span class="toc-text">NorFlash</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SuperBoot"><span class="toc-text">SuperBoot</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#supervivi"><span class="toc-text">supervivi</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#vboot"><span class="toc-text">vboot</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#bootloader-vivi"><span class="toc-text">bootloader vivi</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#arm启动"><span class="toc-text">arm启动</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#时钟"><span class="toc-text">时钟</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#内存"><span class="toc-text">内存</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#串口"><span class="toc-text">串口</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#UART-0-的寄存器"><span class="toc-text">UART 0 的寄存器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#下面开始使用uart-0"><span class="toc-text">下面开始使用uart 0</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#看门狗"><span class="toc-text">看门狗</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#写NandFlash"><span class="toc-text">写NandFlash</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#dnw"><span class="toc-text">dnw</span></a></li></ol></li></ol></div><div class="widget"><div class="widget-title"><i class="fa fa-xie"> 最新文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/10/03/mini2440开发板/">mini2440开发板</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/30/minicom/">minicom</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/30/内核模块编译/">内核模块编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/tty/">tty</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/Linux终端编程-termios/">Linux终端编程-termios</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/伪终端使用/">伪终端使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/18/安装WordPress/">安装WordPress</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/php安装/">php安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/mysql安装/">mysql安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/17/nginx安装/">nginx安装</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-gui"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/使用方法/">使用方法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/技术文章/">技术文章</a><span class="category-list-count">36</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-biao"> 标签</i></div><div class="tagcloud"><a href="/tags/javascript/" style="font-size: 15px;">javascript</a> <a href="/tags/ShadowSocks/" style="font-size: 15px;">ShadowSocks</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/Android/" style="font-size: 15px;">Android</a> <a href="/tags/Art/" style="font-size: 15px;">Art</a> <a href="/tags/服务器/" style="font-size: 15px;">服务器</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/内核/" style="font-size: 15px;">内核</a> <a href="/tags/内存/" style="font-size: 15px;">内存</a> <a href="/tags/Binder/" style="font-size: 15px;">Binder</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-archive"> 归档</i></div><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-you"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div></div><a id="totop" href="#top"></a><div id="footer"><div class="footer-info"><p><a href="/baidusitemap.xml">网站地图</a> |  <a href="/atom.xml">订阅本站</a> |  <a href="/about/">联系博主</a></p><p>本站总访问量：<i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>次，本站总访客数:<i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>人</p><p><span> Copyright &copy;<a href="/." rel="nofollow">董宇.</a></span><span> Theme by<a rel="nofollow" target="_blank" href="https://github.com/chaooo/hexo-theme-BlueLake"> BlueLake.</a></span><span> Count by<a href="http://busuanzi.ibruce.info/"> busuanzi.</a></span><span> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a></span></p></div></div></div><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><script type="text/javascript" src="/js/search.json.js?v=2.0.4"></script><script type="text/javascript" src="/js/toctotop.js?v=2.0.4" async></script><link rel="stylesheet" type="text/css" href="/share/css/share.css"><script type="text/javascript" src="/share/js/social-share.js" charset="utf-8"></script><script type="text/javascript" src="/share/js/qrcode.js" charset="utf-8"></script></body></html>
